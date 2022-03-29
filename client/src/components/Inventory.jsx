@@ -1,25 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
 
-const Inventory = ({ array, setArray, fetchInventory, fetchOrders }) => {
+const Inventory = ({ array, setArray, fetchInventory }) => {
+        const [category, setCategory] = useState("Shisha");
+        const changeCategory = (newCat) => {
+                setCategory(newCat.cat);
+        };
         const initialValues = {
                 name: "",
                 price: "",
+                type: "Shisha",
         };
         const initialValues2 = {
                 price: "",
         };
+        const initialValues3 = { cat: "Shisha" };
         const addItem = async (data) => {
-                console.log(data);
-                await axios.post("http://localhost:3001/inventory", data);
+                const newItem = {
+                        name: data.name,
+                        price: data.price,
+                        type: category,
+                };
+                console.log(newItem);
+                await axios.post("http://localhost:3001/inventory", newItem);
                 fetchInventory();
         };
         const updatePrice = async (data, id) => {
                 console.log(data);
                 await axios.put(`http://localhost:3001/inventory/${id}`, data);
                 fetchInventory();
-                fetchOrders();
         };
         const deleteItem = async (id) => {
                 const isDeleted = await axios.delete(`http://localhost:3001/inventory/${id}`);
@@ -30,14 +40,34 @@ const Inventory = ({ array, setArray, fetchInventory, fetchOrders }) => {
                 const values = array.filter((element) => element.id !== id);
                 setArray(values);
         };
-        const addToOrder = async (id) => {
-                const data = { tableid: 1, orderid: 1, itemid: id };
-                await axios.post("http://localhost:3001/orders/", data);
-                fetchOrders();
-        };
 
         return (
-                <div className="">
+                <div className="max-w-[90vw] m-auto">
+                        <Formik
+                                initialValues={initialValues3}
+                                onSubmit={(data) => {
+                                        changeCategory(data);
+                                }}
+                        >
+                                <Form className="m-2 border-2 font-bold p-2 flex justify-center items-center">
+                                        <label htmlFor="" className="font-bold text-xl p-2">
+                                                <h3>Chosen category: </h3>
+                                        </label>
+                                        <Field name="cat" component="select" className="m-2 text-xl p-2">
+                                                <option value="Shisha">Shisha</option>
+                                                <option value="Non-alcoholic">Non-alcoholic</option>
+                                                <option value="Beer-Wine-Cider">Beer-Wine-Cider</option>
+                                                <option value="Drink-alcoholic">Drink-alcoholic</option>
+                                                <option value="Drink-non-alcoholic">Drink-non-alcoholic</option>
+                                                <option value="Shot">Shot</option>
+                                                <option value="Bucket">Bucket</option>
+                                                <option value="Other">Other</option>
+                                        </Field>
+                                        <button type="submit" className="m-2 border-2 font-bold p-2">
+                                                CHANGE CATEGORY
+                                        </button>
+                                </Form>
+                        </Formik>
                         <Formik
                                 initialValues={initialValues}
                                 onSubmit={(data, { resetForm }) => {
@@ -45,48 +75,92 @@ const Inventory = ({ array, setArray, fetchInventory, fetchOrders }) => {
                                         resetForm();
                                 }}
                         >
-                                <Form autoComplete="off">
-                                        <label htmlFor="">
+                                <Form
+                                        autoComplete="off"
+                                        className="m-2 border-2 font-bold p-2 flex justify-center items-center"
+                                >
+                                        <label htmlFor="" className="font-bold text-xl p-2">
                                                 <h3>name:</h3>
                                         </label>
-                                        <Field name="name" placeholder="Name.."></Field>
-                                        <label htmlFor="">
+                                        <Field name="name" placeholder="Name.." className="m-2 text-xl p-2"></Field>
+                                        <label htmlFor="" className="font-bold text-xl p-2">
                                                 <h3>price:</h3>
                                         </label>
-                                        <Field name="price" placeholder="Price.."></Field>
+                                        <Field name="price" placeholder="Price.." className="m-2 text-xl p-2"></Field>
                                         <br />
-                                        <button type="submit">ADD NEW ITEM</button>
+                                        <button type="submit" className="m-2 border-2 font-bold p-2">
+                                                ADD NEW ITEM
+                                        </button>
                                 </Form>
                         </Formik>
-                        <ul>
+
+                        <div className="m-2 text-white flex-col items-center justify-center">
                                 {array.map((item, index) => {
                                         return (
-                                                <li key={index}>
-                                                        {item.name} for {item.price} Kc{" "}
-                                                        <button onClick={() => deleteItem(item.id)}>DEL</button>
-                                                        <button onClick={() => addToOrder(item.id)}>
-                                                                Add to order
-                                                        </button>
-                                                        <Formik
-                                                                initialValues={initialValues2}
-                                                                onSubmit={(data, { resetForm }) => {
-                                                                        updatePrice(data, item.id);
-                                                                        resetForm();
-                                                                }}
+                                                item.type === category && (
+                                                        <div
+                                                                key={index}
+                                                                className="bg-slate-500 border-2 p-5 flex w-[100%]"
                                                         >
-                                                                <Form autoComplete="off">
-                                                                        <label htmlFor="">update price:</label>
-                                                                        <Field
-                                                                                name="price"
-                                                                                placeholder="new price.."
-                                                                        ></Field>
-                                                                        <button type="submit">UPDATE</button>
-                                                                </Form>
-                                                        </Formik>
-                                                </li>
+                                                                <div className="text-3xl font-bold flex-grow text-white border-r-2 border-white p-3">
+                                                                        {item.name}{" "}
+                                                                        <div className=" font-normal text-white">
+                                                                                for{" "}
+                                                                        </div>
+                                                                        {item.price} Kc
+                                                                </div>
+                                                                <div className="flex items-center justify-center">
+                                                                        <div className="">
+                                                                                <Formik
+                                                                                        initialValues={initialValues2}
+                                                                                        onSubmit={(
+                                                                                                data,
+                                                                                                { resetForm }
+                                                                                        ) => {
+                                                                                                updatePrice(
+                                                                                                        data,
+                                                                                                        item.id
+                                                                                                );
+                                                                                                resetForm();
+                                                                                        }}
+                                                                                >
+                                                                                        <Form
+                                                                                                autoComplete="off"
+                                                                                                className="m-2 font-bold"
+                                                                                        >
+                                                                                                <label className="font-bold text-xl ">
+                                                                                                        New price:
+                                                                                                </label>
+                                                                                                <Field
+                                                                                                        name="price"
+                                                                                                        placeholder="new price.."
+                                                                                                        className="m-2 text-xl text-black align-middle text-center"
+                                                                                                ></Field>
+                                                                                                <button
+                                                                                                        type="submit"
+                                                                                                        className="m-2 border-2 font-bold p-2 bg-green-600"
+                                                                                                >
+                                                                                                        UPDATE PRICE
+                                                                                                </button>
+                                                                                        </Form>
+                                                                                </Formik>
+                                                                        </div>
+                                                                        <div className="">
+                                                                                <button
+                                                                                        className="m-2 border-2 font-bold p-2 bg-red-600"
+                                                                                        onClick={() =>
+                                                                                                deleteItem(item.id)
+                                                                                        }
+                                                                                >
+                                                                                        DELETE ITEM
+                                                                                </button>
+                                                                        </div>
+                                                                </div>
+                                                        </div>
+                                                )
                                         );
                                 })}
-                        </ul>
+                        </div>
                 </div>
         );
 };
