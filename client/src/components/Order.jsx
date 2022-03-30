@@ -38,7 +38,7 @@ const Order = ({ tableid, fetchOrdersFromTable, orderNames, array }) => {
                                                                                 to={path}
                                                                                 activeStyle={{ color: "black" }}
                                                                         >
-                                                                                ORDER {index}
+                                                                                ORDER {index + 1}
                                                                         </NavLink>
                                                                 </div>
                                                         )

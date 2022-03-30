@@ -12,5 +12,14 @@ router.post("/", async (req, res) => {
         await OrderName.create(newOrder);
         res.json(newOrder);
 });
+router.put("/:id", async (req, res) => {
+        const { id } = req.params;
+        const body = req.body;
+        await OrderName.update(body, {
+                where: {
+                        orderid: id,
+                },
+        });
+});
 
 module.exports = router;

@@ -1,10 +1,106 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const SingleOrder = ({ order, array }) => {
         const [category, setCategory] = useState("Shisha");
+        const [orders, setOrders] = useState([]);
+        const [sum, setSum] = useState(0);
+        const [rtp, setRtp] = useState(false);
+        const rtpStyle = `font-bold text-2xl  border-2 mt-3 mx-1 ${
+                !rtp ? "border-green-500 text-green-500" : "border-green-500 text-white bg-green-500"
+        }`;
+        const rtpSet = () => {
+                setRtp(!rtp);
+        };
+
+        const fetchOrders = async () => {
+                await axios.get(`http://localhost:3001/orders/${order.orderid}`).then((res) => {
+                        setOrders(res.data);
+                        console.log(res.data);
+                });
+        };
+        useEffect(() => {
+                fetchOrders();
+        }, []);
         const catSetter = (cat) => {
                 setCategory(cat);
         };
+
+        const onClick = async (item) => {
+                const newItem = {
+                        orderid: order.orderid,
+                        itemid: item.id,
+                        tobepaid: false,
+                        paid: false,
+                };
+                await axios.post("http://localhost:3001/orders", newItem);
+                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                console.log(newArray);
+                setOrders(newArray.data);
+        };
+        const duplicate = async (thisOrder) => {
+                console.log(thisOrder);
+                const newItem = {
+                        orderid: order.orderid,
+                        itemid: thisOrder.item.id,
+                        tobepaid: false,
+                        paid: false,
+                };
+                await axios.post("http://localhost:3001/orders", newItem);
+                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                console.log(newArray);
+                setOrders(newArray.data);
+        };
+        const deleteItem = async (order) => {
+                setOrders(orders.filter((e) => e.orderId !== order.orderId));
+                await axios.delete(`http://localhost:3001/orders/${order.orderId}`);
+        };
+        const updatePayment = async (thisOrder) => {
+                await axios.put(`http://localhost:3001/orders/${thisOrder.orderId}`, { tobepaid: !thisOrder.tobepaid });
+                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                console.log(newArray);
+                setOrders(newArray.data);
+                let sumArray = [];
+                newArray.data.forEach((order) => {
+                        if (!order.paid && order.tobepaid) {
+                                sumArray = [...sumArray, order];
+                        }
+                });
+                setSum(0);
+                let sumTemp = 0;
+                sumArray.forEach((order) => {
+                        sumTemp += parseInt(order.item.price);
+                });
+                setSum(sumTemp);
+        };
+        const updatePaid = async (thisOrder) => {
+                await axios.put(`http://localhost:3001/orders/${thisOrder.orderId}`, { paid: true });
+                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                console.log(newArray);
+                setOrders(newArray.data);
+        };
+
+        const payItems = async () => {
+                let doneCheck = orders.length - 1;
+                let doneCheck2 = 0;
+                rtp
+                        ? orders.map((order) => {
+                                  if (order.tobepaid && !order.paid) {
+                                          updatePaid(order);
+                                  }
+                          }) &&
+                          setRtp(!rtp) &&
+                          setSum(0)
+                        : console.log("not ready to pay");
+
+                orders.map((order) => {
+                        order.paid && (doneCheck2 += 1);
+                });
+                if (doneCheck === doneCheck2) {
+                        await axios.put(`http://localhost:3001/ordername/${order.orderid}`, { done: true });
+                }
+        };
+
         return (
                 <div className="flex min-h-[70vh]">
                         <div className="w-[50vw]  bg-white">
@@ -95,21 +191,162 @@ const SingleOrder = ({ order, array }) => {
                                                 {array.map((item, index) => {
                                                         return (
                                                                 item.type === category && (
-                                                                        <div
+                                                                        <button
+                                                                                onClick={() => {
+                                                                                        onClick(item);
+                                                                                }}
                                                                                 key={index + item.id}
                                                                                 className="font-bold flex text-black border-2 border-black p-3 w-[170px] m-2 flex-wrap items-center justify-center"
                                                                         >
                                                                                 {item.name}
-                                                                        </div>
+                                                                        </button>
                                                                 )
                                                         );
                                                 })}
                                         </div>
                                 </div>
                         </div>
-                        <div className="w-[20vw] h-auto bg-black"></div>
-                        <div className="w-[15vw] h-auto bg-white"></div>
-                        <div className="w-[15vw] h-auto bg-black"></div>
+                        <div className="w-[20vw] h-auto bg-white border-2 border-black">
+                                <div className="flex flex-col justify-center items-center">
+                                        <div className=" font-bold text-2xl  border-b-2 border-slate-500 text-slate-500">
+                                                ORDERED ITEMS:
+                                        </div>
+                                        {orders.map((order, index) => {
+                                                return (
+                                                        !order.paid &&
+                                                        !order.tobepaid && (
+                                                                <div
+                                                                        className="flex m-2"
+                                                                        key={
+                                                                                order.orderId +
+                                                                                index +
+                                                                                order.item.name +
+                                                                                index
+                                                                        }
+                                                                >
+                                                                        <button
+                                                                                className=" text-3xl text-red-500 font-bold  mr-9 bg-slate-500 px-2"
+                                                                                onClick={() => {
+                                                                                        console.log(order);
+                                                                                        deleteItem(order);
+                                                                                }}
+                                                                        >
+                                                                                X
+                                                                        </button>
+                                                                        <button
+                                                                                onClick={() => {
+                                                                                        console.log({ order });
+                                                                                        duplicate(order);
+                                                                                }}
+                                                                                className="text-xl font-bold flex-grow text-black
+                                                                 p-1"
+                                                                        >
+                                                                                {order.item.name}
+                                                                        </button>
+                                                                        <button
+                                                                                className=" text-3xl text-green-500 font-bold  ml-9 bg-slate-500 px-2"
+                                                                                onClick={() => {
+                                                                                        console.log(order);
+                                                                                        updatePayment(order);
+                                                                                }}
+                                                                        >
+                                                                                P
+                                                                        </button>
+                                                                </div>
+                                                        )
+                                                );
+                                        })}
+                                </div>
+                        </div>
+                        <div className="w-[15vw] h-auto bg-white border-2 border-black">
+                                {" "}
+                                <div className="flex flex-col justify-center items-center">
+                                        <div className=" font-bold text-2xl  border-b-2 border-slate-500 text-slate-500">
+                                                SUM: {sum} kc
+                                        </div>
+                                        <div>
+                                                <button className={rtpStyle} onClick={rtpSet}>
+                                                        READY
+                                                </button>
+                                                <button
+                                                        className=" font-bold text-2xl  border-2 mt-3 border-red-500 text-red-500 mx-1"
+                                                        onClick={payItems}
+                                                >
+                                                        PAY
+                                                </button>
+                                        </div>
+
+                                        {orders.map((order, index) => {
+                                                return (
+                                                        order.tobepaid &&
+                                                        !order.paid && (
+                                                                <div
+                                                                        className="flex m-2"
+                                                                        key={
+                                                                                order.orderId +
+                                                                                index +
+                                                                                order.item.name +
+                                                                                index
+                                                                        }
+                                                                >
+                                                                        <button
+                                                                                className=" text-3xl text-red-500 font-bold  mr-9 bg-slate-500 px-2"
+                                                                                onClick={() => {
+                                                                                        console.log(order);
+                                                                                        updatePayment(order);
+                                                                                }}
+                                                                        >
+                                                                                X
+                                                                        </button>
+                                                                        <div
+                                                                                onClick={() => {
+                                                                                        console.log({ order });
+                                                                                        onClick(order);
+                                                                                }}
+                                                                                className="text-xl font-bold flex-grow text-black
+                                                                 p-1"
+                                                                        >
+                                                                                {order.item.name}
+                                                                        </div>
+                                                                </div>
+                                                        )
+                                                );
+                                        })}
+                                </div>
+                        </div>
+                        <div className="w-[15vw]  h-auto bg-white border-2 border-black">
+                                <div className="flex flex-col justify-center items-center">
+                                        <div className=" font-bold text-2xl  border-b-2 border-slate-500 text-slate-500">
+                                                PAID:
+                                        </div>
+                                        {orders.map((order, index) => {
+                                                return (
+                                                        order.paid && (
+                                                                <div
+                                                                        className="flex m-2"
+                                                                        key={
+                                                                                order.orderId +
+                                                                                index +
+                                                                                order.item.name +
+                                                                                index
+                                                                        }
+                                                                >
+                                                                        <div
+                                                                                onClick={() => {
+                                                                                        console.log({ order });
+                                                                                        onClick(order);
+                                                                                }}
+                                                                                className="text-xl font-bold flex-grow text-black
+                                                                 p-1"
+                                                                        >
+                                                                                {order.item.name}
+                                                                        </div>
+                                                                </div>
+                                                        )
+                                                );
+                                        })}
+                                </div>
+                        </div>
                 </div>
         );
 };

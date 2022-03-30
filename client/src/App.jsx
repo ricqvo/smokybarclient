@@ -8,7 +8,6 @@ import Navbar from "./components/Navbar";
 
 function App() {
         const [array, setArray] = useState([]);
-        const [orderList, setOrderList] = useState([]);
 
         const fetchInventory = async () => {
                 await axios.get("http://localhost:3001/inventory").then((res) => {
