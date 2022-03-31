@@ -76,26 +76,36 @@ const SingleOrder = ({ order, array }) => {
         const updatePaid = async (thisOrder) => {
                 await axios.put(`http://localhost:3001/orders/${thisOrder.orderId}`, { paid: true });
                 const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
-                console.log(newArray);
                 setOrders(newArray.data);
         };
 
+        const reset = () => {
+                setSum(0);
+                setRtp(!rtp);
+        };
         const payItems = async () => {
-                let doneCheck = orders.length - 1;
-                let doneCheck2 = 0;
-                rtp
-                        ? orders.map((order) => {
-                                  if (order.tobepaid && !order.paid) {
-                                          updatePaid(order);
-                                  }
-                          }) &&
-                          setRtp(!rtp) &&
-                          setSum(0)
-                        : console.log("not ready to pay");
+                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
 
-                orders.map((order) => {
-                        order.paid && (doneCheck2 += 1);
+                let doneCheck2 = 0;
+                if (rtp) {
+                        newArray.data.forEach(async (order) => {
+                                if (order.tobepaid && !order.paid) {
+                                        await updatePaid(order);
+                                }
+                        });
+                        reset();
+                } else {
+                        console.log("not ready to pay");
+                }
+                const newArray2 = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                let doneCheck = newArray2.data.length;
+                newArray2.data.forEach((or) => {
+                        if (or.paid || or.tobepaid) {
+                                doneCheck2 += 1;
+                        }
                 });
+                console.log(doneCheck + "===" + doneCheck2);
+
                 if (doneCheck === doneCheck2) {
                         await axios.put(`http://localhost:3001/ordername/${order.orderid}`, { done: true });
                 }
@@ -195,7 +205,13 @@ const SingleOrder = ({ order, array }) => {
                                                                                 onClick={() => {
                                                                                         onClick(item);
                                                                                 }}
-                                                                                key={index + item.id}
+                                                                                key={
+                                                                                        index +
+                                                                                        item.id +
+                                                                                        item.type +
+                                                                                        item.name +
+                                                                                        item.price
+                                                                                }
                                                                                 className="font-bold flex text-black border-2 border-black p-3 w-[170px] m-2 flex-wrap items-center justify-center"
                                                                         >
                                                                                 {item.name}
@@ -299,10 +315,6 @@ const SingleOrder = ({ order, array }) => {
                                                                                 X
                                                                         </button>
                                                                         <div
-                                                                                onClick={() => {
-                                                                                        console.log({ order });
-                                                                                        onClick(order);
-                                                                                }}
                                                                                 className="text-xl font-bold flex-grow text-black
                                                                  p-1"
                                                                         >
@@ -332,10 +344,6 @@ const SingleOrder = ({ order, array }) => {
                                                                         }
                                                                 >
                                                                         <div
-                                                                                onClick={() => {
-                                                                                        console.log({ order });
-                                                                                        onClick(order);
-                                                                                }}
                                                                                 className="text-xl font-bold flex-grow text-black
                                                                  p-1"
                                                                         >
