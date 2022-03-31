@@ -10,7 +10,7 @@ function App() {
         const [array, setArray] = useState([]);
 
         const fetchInventory = async () => {
-                await axios.get("http://localhost:3001/inventory").then((res) => {
+                await axios.get("https://project-smokybar.herokuapp.com/inventory").then((res) => {
                         setArray(res.data);
                         console.log(res.data);
                 });

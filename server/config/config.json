@@ -1,23 +1,23 @@
 {
         "development": {
-                "username": "root",
-                "password": "",
-                "database": "smokybardemo",
-                "host": "127.0.0.1",
+                "username": "bd63204ca1d10c",
+                "password": "438ff396",
+                "database": "heroku_41c0d8538716492",
+                "host": "eu-cdbr-west-02.cleardb.net",
                 "dialect": "mysql"
         },
         "test": {
-                "username": "root",
-                "password": null,
-                "database": "database_test",
-                "host": "127.0.0.1",
+                "username": "bd63204ca1d10c",
+                "password": "438ff396",
+                "database": "heroku_41c0d8538716492",
+                "host": "eu-cdbr-west-02.cleardb.net",
                 "dialect": "mysql"
         },
         "production": {
-                "username": "root",
-                "password": null,
-                "database": "database_production",
-                "host": "127.0.0.1",
+                "username": "bd63204ca1d10c",
+                "password": "438ff396",
+                "database": "heroku_41c0d8538716492",
+                "host": "eu-cdbr-west-02.cleardb.net",
                 "dialect": "mysql"
         }
 }

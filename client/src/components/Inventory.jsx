@@ -23,16 +23,16 @@ const Inventory = ({ array, setArray, fetchInventory }) => {
                         type: category,
                 };
                 console.log(newItem);
-                await axios.post("http://localhost:3001/inventory", newItem);
+                await axios.post("https://project-smokybar.herokuapp.com/inventory", newItem);
                 fetchInventory();
         };
         const updatePrice = async (data, id) => {
                 console.log(data);
-                await axios.put(`http://localhost:3001/inventory/${id}`, data);
+                await axios.put(`https://project-smokybar.herokuapp.com/inventory/${id}`, data);
                 fetchInventory();
         };
         const deleteItem = async (id) => {
-                const isDeleted = await axios.delete(`http://localhost:3001/inventory/${id}`);
+                const isDeleted = await axios.delete(`https://project-smokybar.herokuapp.com/inventory/${id}`);
 
                 if (!isDeleted.data.success) {
                         return alert("Item could not be deleted. Please try again.");

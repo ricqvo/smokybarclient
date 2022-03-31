@@ -13,7 +13,7 @@ const orderNameRoute = require("./routes/OrderName");
 app.use("/ordername", orderNameRoute);
 
 db.sequelize.sync().then(() => {
-        app.listen(3001, () => {
+        app.listen(process.env.PORT || PORT, () => {
                 console.log("Server is running bruh.");
         });
 });

@@ -14,7 +14,7 @@ const SingleOrder = ({ order, array }) => {
         };
 
         const fetchOrders = async () => {
-                await axios.get(`http://localhost:3001/orders/${order.orderid}`).then((res) => {
+                await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`).then((res) => {
                         setOrders(res.data);
                         console.log(res.data);
                 });
@@ -33,8 +33,8 @@ const SingleOrder = ({ order, array }) => {
                         tobepaid: false,
                         paid: false,
                 };
-                await axios.post("http://localhost:3001/orders", newItem);
-                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                await axios.post("https://project-smokybar.herokuapp.com/orders", newItem);
+                const newArray = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
                 console.log(newArray);
                 setOrders(newArray.data);
         };
@@ -46,18 +46,20 @@ const SingleOrder = ({ order, array }) => {
                         tobepaid: false,
                         paid: false,
                 };
-                await axios.post("http://localhost:3001/orders", newItem);
-                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                await axios.post("https://project-smokybar.herokuapp.com/orders", newItem);
+                const newArray = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
                 console.log(newArray);
                 setOrders(newArray.data);
         };
         const deleteItem = async (order) => {
                 setOrders(orders.filter((e) => e.orderId !== order.orderId));
-                await axios.delete(`http://localhost:3001/orders/${order.orderId}`);
+                await axios.delete(`https://project-smokybar.herokuapp.com/orders/${order.orderId}`);
         };
         const updatePayment = async (thisOrder) => {
-                await axios.put(`http://localhost:3001/orders/${thisOrder.orderId}`, { tobepaid: !thisOrder.tobepaid });
-                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                await axios.put(`https://project-smokybar.herokuapp.com/orders/${thisOrder.orderId}`, {
+                        tobepaid: !thisOrder.tobepaid,
+                });
+                const newArray = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
                 console.log(newArray);
                 setOrders(newArray.data);
                 let sumArray = [];
@@ -74,8 +76,8 @@ const SingleOrder = ({ order, array }) => {
                 setSum(sumTemp);
         };
         const updatePaid = async (thisOrder) => {
-                await axios.put(`http://localhost:3001/orders/${thisOrder.orderId}`, { paid: true });
-                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                await axios.put(`https://project-smokybar.herokuapp.com/orders/${thisOrder.orderId}`, { paid: true });
+                const newArray = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
                 setOrders(newArray.data);
         };
 
@@ -84,7 +86,7 @@ const SingleOrder = ({ order, array }) => {
                 setRtp(!rtp);
         };
         const payItems = async () => {
-                const newArray = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                const newArray = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
 
                 let doneCheck2 = 0;
                 if (rtp) {
@@ -97,7 +99,7 @@ const SingleOrder = ({ order, array }) => {
                 } else {
                         console.log("not ready to pay");
                 }
-                const newArray2 = await axios.get(`http://localhost:3001/orders/${order.orderid}`);
+                const newArray2 = await axios.get(`https://project-smokybar.herokuapp.com/orders/${order.orderid}`);
                 let doneCheck = newArray2.data.length;
                 newArray2.data.forEach((or) => {
                         if (or.paid || or.tobepaid) {
@@ -107,7 +109,9 @@ const SingleOrder = ({ order, array }) => {
                 console.log(doneCheck + "===" + doneCheck2);
 
                 if (doneCheck === doneCheck2) {
-                        await axios.put(`http://localhost:3001/ordername/${order.orderid}`, { done: true });
+                        await axios.put(`https://project-smokybar.herokuapp.com/ordername/${order.orderid}`, {
+                                done: true,
+                        });
                 }
         };
 

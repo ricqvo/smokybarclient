@@ -7,7 +7,7 @@ import TableNav from "./TableNav";
 const Orders = ({ array }) => {
         const [orderNames, setOrderNames] = useState([]);
         const fetchOrdersFromTable = async () => {
-                await axios.get(`http://localhost:3001/ordername`).then((res) => {
+                await axios.get(`https://project-smokybar.herokuapp.com/ordername`).then((res) => {
                         setOrderNames(res.data);
                         console.log(res.data);
                 });

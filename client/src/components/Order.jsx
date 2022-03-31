@@ -12,7 +12,7 @@ const Order = ({ tableid, fetchOrdersFromTable, orderNames, array }) => {
                         done: false,
                 };
                 console.log(newOrder);
-                await axios.post("http://localhost:3001/ordername", newOrder);
+                await axios.post("https://project-smokybar.herokuapp.com/ordername", newOrder);
                 fetchOrdersFromTable();
         };
         return (
